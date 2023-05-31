@@ -70,6 +70,15 @@ impl Fleet {
         println!("-----------------")
     }
 
+    fn id_already_present(&self, id: &String) -> bool{
+        for vehicle in &self.vehicles {
+            if vehicle.get_id() == id.to_string(){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
 pub struct Ambulance {
@@ -177,9 +186,21 @@ fn add_new_vehicle(fleet: &mut Fleet){
         vehicle_type = stdin().lock().lines().next().unwrap().unwrap().parse().unwrap();
     }
     
-    println!("Insert the id of the vehicle: ");
-    let id = stdin().lock().lines().next().unwrap().unwrap();
+    let mut already_present = true;
 
+    let mut id = String::from("");
+
+    while already_present{
+        println!("Insert the id of the vehicle: ");
+        id = stdin().lock().lines().next().unwrap().unwrap();
+        if !fleet.id_already_present(&id){
+            already_present = false;
+        }
+        else{
+            println!("Id already present!");
+        }
+    }
+    
     println!("Insert the x coordinate of the vehicle: ");
     let x : i32 = stdin().lock().lines().next().unwrap().unwrap().parse().unwrap();
 
@@ -224,16 +245,18 @@ fn serve_new_emergency(fleet: &mut Fleet){
 
 fn main(){
     let mut fleet = Fleet{vehicles: vec![]};
+    let mut exit = false;
     
     use std::io::*;
-    loop {
-        println!("What do you want to do?\n1. Show vehicles\n2. Add new vehicle\n3. Serve an emergency");
+    while !exit {
+        println!("What do you want to do?\n1. Show vehicles\n2. Add new vehicle\n3. Serve an emergency\n-1. Exit");
         let user_choice : i32 = stdin().lock().lines().next().unwrap().unwrap().parse().unwrap();
     
         match user_choice {
             1 => fleet.display_vehicles(),
             2 => add_new_vehicle(&mut fleet),
             3 => serve_new_emergency(&mut fleet),
+            -1 => exit = true,
             _ => println!("Choose one of the available operations!"),
         };
     }
